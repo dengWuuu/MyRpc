@@ -6,12 +6,23 @@
 
     <groupId>org.rpc</groupId>
     <artifactId>MyRpc</artifactId>
+    <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
+    <modules>
+        <module>rpc-common</module>
+        <module>rpc-api</module>
+        <module>rpc-core</module>
+        <module>server-test</module>
+        <module>client-test</module>
+    </modules>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <netty-version>4.1.50.Final</netty-version>
+        <guava.version>29.0-jre</guava.version>
+
     </properties>
 
 
