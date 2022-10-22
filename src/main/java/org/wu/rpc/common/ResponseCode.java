@@ -1,4 +1,4 @@
-package org.wu.rpc.data;
+package org.wu.rpc.common;
 
 import lombok.AllArgsConstructor;
 

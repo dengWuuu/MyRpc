@@ -1,6 +1,7 @@
 package org.wu.rpc.data;
 
 import lombok.Data;
+import org.wu.rpc.common.ResponseCode;
 
 import java.io.Serializable;
 
