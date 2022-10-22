@@ -1,6 +1,7 @@
 package org.wu.rpc.common;
 
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 /**
  * 枚举类
@@ -9,26 +10,15 @@ import lombok.AllArgsConstructor;
  */
 
 @AllArgsConstructor
+@Getter
 public enum ResponseCode {
-    SUCCESS(0, "成功"),
-    FAIL(1, "失败");
-    private Integer code;
-    private String message;
 
-    public int getCode() {
-        return code;
-    }
+    SUCCESS(200, "调用方法成功"),
+    FAIL(500, "调用方法失败"),
+    METHOD_NOT_FOUND(500, "未找到指定方法"),
+    CLASS_NOT_FOUND(500, "未找到指定类");
 
-    public void setCode(Integer code) {
-        this.code = code;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
+    private final int code;
+    private final String message;
 
 }

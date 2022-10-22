@@ -1,6 +1,7 @@
 package org.wu.rpc.server;
 
 import lombok.extern.slf4j.Slf4j;
+import org.wu.rpc.registry.ServiceRegistry;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -10,41 +11,40 @@ import java.util.concurrent.*;
 
 /**
  * RPC服务端
+ *
  * @author Wu
  * @date 2022年10月22日 23:05
  */
 @Slf4j
 public class RpcServer {
-    private final ExecutorService threadPool;
 
-    public RpcServer() {
-        //构建线程池
-        int corePoolSize = 5;
-        int maximumPoolSize = 50;
-        long keepAliveTime = 60;
-        BlockingQueue<Runnable> workingQueue = new ArrayBlockingQueue<>(100);
+    private static final int CORE_POOL_SIZE = 5;
+    private static final int MAXIMUM_POOL_SIZE = 50;
+    private static final int KEEP_ALIVE_TIME = 60;
+    private static final int BLOCKING_QUEUE_CAPACITY = 100;
+    private final ExecutorService threadPool;
+    private final RequestHandler requestHandler = new RequestHandler();
+    private final ServiceRegistry serviceRegistry;
+
+    public RpcServer(ServiceRegistry serviceRegistry) {
+        this.serviceRegistry = serviceRegistry;
+        BlockingQueue<Runnable> workingQueue = new ArrayBlockingQueue<>(BLOCKING_QUEUE_CAPACITY);
         ThreadFactory threadFactory = Executors.defaultThreadFactory();
-        threadPool = new ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTime, TimeUnit.SECONDS, workingQueue, threadFactory);
+        threadPool = new ThreadPoolExecutor(CORE_POOL_SIZE, MAXIMUM_POOL_SIZE, KEEP_ALIVE_TIME, TimeUnit.SECONDS, workingQueue, threadFactory);
     }
 
-    /**
-     * 运行指定方法
-     * @param service
-     * @param port
-     */
-    public void register(Object service, int port) {
+    public void start(int port) {
         try (ServerSocket serverSocket = new ServerSocket(port)) {
-            log.info("服务器启动...");
+            log.info("服务器启动……");
             Socket socket;
-            //CAS等待连接到客户端
-            while((socket = serverSocket.accept()) != null) {
-                log.info("客户端连接！Ip为：" + socket.getInetAddress());
-                threadPool.execute(new WorkerThread(socket, service));
+            while ((socket = serverSocket.accept()) != null) {
+                log.info("消费者连接: {}:{}", socket.getInetAddress(), socket.getPort());
+                threadPool.execute(new RequestHandlerThread(socket, requestHandler, serviceRegistry));
             }
+            threadPool.shutdown();
         } catch (IOException e) {
-            log.error("注册时有错误发生：", e);
+            log.error("服务器启动时有错误发生:", e);
         }
     }
-
-
 }
+
